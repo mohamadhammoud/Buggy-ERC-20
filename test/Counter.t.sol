@@ -1,24 +1,27 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Test, console} from "forge-std/Test.sol";
-import {Counter} from "../src/Counter.sol";
-
-contract CounterTest is Test {
-    Counter public counter;
+import {BaseTest} from "./utils/BaseTest.t.sol";
+import {Challlenge01} from "src/Challenge01.sol";
+contract CounterTest is BaseTest {
+    MockToken mockToken;
 
     function setUp() public {
-        counter = new Counter();
-        counter.setNumber(0);
+        mockToken = new MockToken();
     }
 
-    function test_Increment() public {
-        counter.increment();
-        assertEq(counter.number(), 1);
-    }
+    function test_TransferDoesNotDeductFromBalance() public {
+        uint256 beforeBalance = mockToken.balanceOf(deployer);
 
-    function testFuzz_SetNumber(uint256 x) public {
-        counter.setNumber(x);
-        assertEq(counter.number(), x);
+        mockToken.transfer(recipient, beforeBalance);
+        uint256 beforeAfter = mockToken.balanceOf(deployer);
+
+        assertEq(beforeBalance, beforeAfter);
+    }
+}
+
+contract MockToken is Challlenge01 {
+    constructor() Challlenge01("Challenge01", "ch1") {
+        _mint(msg.sender, 1);
     }
 }
